@@ -27,7 +27,22 @@ jobs:
           pip install buildozer "cython<3" virtualenv
 
       - name: Build APK
-        run: buildozer -v android debug
+        shell: bash
+        run: buildozer -v android debug 2>&1 | tee build.log
+
+      - name: Tampilkan error
+        if: failure()
+        run: |
+          grep -n -i -E "error|failed|fatal|undefined reference|no such file" build.log | tail -n 25 || true
+          echo "------ 40 baris terakhir ------"
+          tail -n 40 build.log
+
+      - name: Simpan log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
 
       - name: Simpan APK
         uses: actions/upload-artifact@v4
