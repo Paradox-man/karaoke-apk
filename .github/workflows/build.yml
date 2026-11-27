@@ -49,3 +49,11 @@ jobs:
         with:
           name: karaoke-apk
           path: bin/*.apk
+
+      - name: Detail error av
+        if: failure()
+        shell: bash
+        run: |
+          sed 's/\x1b\[[0-9;]*m//g' build.log > clean2.log
+          L=$(grep -n "Error compiling Cython file" clean2.log | head -1 | cut -d: -f1)
+          sed -n "$((L-3)),$((L+25))p" clean2.log | cut -c1-200
